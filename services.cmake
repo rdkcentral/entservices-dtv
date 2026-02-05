@@ -19,8 +19,6 @@
 # features
 #
 
-add_definitions (-DUSE_SOUND_PLAYER)
-
 add_definitions (-DUSE_IARM)
 option(USE_IARM "USE_IARM" ON)
 
@@ -32,7 +30,6 @@ add_definitions (-DUSE_IARMBUS)
 add_definitions (-DUSE_TR_69)
 
 add_definitions (-DHAS_API_SYSTEM)
-add_definitions (-DHAS_API_POWERSTATE)
 add_definitions(-DRDK_LOG_MILESTONE)
 
 add_definitions (-DUSE_DS)
