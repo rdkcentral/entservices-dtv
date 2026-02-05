@@ -56,8 +56,6 @@ cmake -G Ninja -S "$GITHUB_WORKSPACE" -B build/entservices-dtv \
 -DUSE_DRM_SCREENCAPTURE -DHAS_API_SYSTEM -DHAS_API_POWERSTATE \
 -DHAS_RBUS -DDISABLE_SECURITY_TOKEN -DENABLE_DEVICE_MANUFACTURER_INFO -DUSE_THUNDER_R4 -DTHUNDER_VERSION=4 -DTHUNDER_VERSION_MAJOR=4 -DTHUNDER_VERSION_MINOR=4" \
 
-if [ "$PLUGIN_DTV" != "OFF" ]; then
-    cmake --build build/entservices-dtv --target install
-fi
+# cmake --build build/entservices-dtv --target install
 echo "======================================================================================"
 exit 0
