@@ -17,6 +17,7 @@ env:
   INTERFACES_REF: "develop"
   AUTOMATICS_UNAME: ${{ secrets.AUTOMATICS_UNAME}}
   AUTOMATICS_PASSCODE: ${{ secrets. AUTOMATICS_PASSCODE}}
+  RDK_SERVICES_L1_TEST: "OFF"
 
 jobs:
   L1-tests:
@@ -126,19 +127,19 @@ jobs:
           ref: develop
           token: ${{ secrets.RDKCM_RDKE }}
 
-      - name: Checkout entservices-mediaanddrm
+      - name: Checkout entservices-dtv
         if: ${{ inputs.caller_source == 'local' }}
         uses: actions/checkout@v3
         with:
-          path: entservices-mediaanddrm
+          path: entservices-dtv
 
-      - name: Checkout entservices-mediaanddrm-testframework
+      - name: Checkout entservices-dtv-testframework
         if: ${{ inputs.caller_source == 'testframework' }}
         uses: actions/checkout@v3
         with:
-          repository: rdkcentral/entservices-mediaanddrm
-          path: entservices-mediaanddrm
-          ref: develop
+          repository: rdkcentral/entservices-dtv
+          path: entservices-dtv
+          ref: feature/RDKEMW-13552
 
       - name: Checkout googletest
         if: steps.cache.outputs.cache-hit != 'true'
@@ -346,7 +347,7 @@ jobs:
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests/headers/ccec/drivers
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests/headers/network
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests
-          -I $GITHUB_WORKSPACE/entservices-mediaanddrm/helpers
+          -I $GITHUB_WORKSPACE/entservices-dtv/helpers
           -I $GITHUB_WORKSPACE/Thunder/Source
           -I $GITHUB_WORKSPACE/Thunder/Source/core
           -I $GITHUB_WORKSPACE/install/usr/include
@@ -383,11 +384,11 @@ jobs:
           &&
           cmake --install build/mocks
 
-      - name: Build entservices-mediaanddrm
+      - name: Build entservices-dtv
         run: >
           cmake -G Ninja
-          -S "$GITHUB_WORKSPACE/entservices-mediaanddrm"
-          -B build/entservices-mediaanddrm
+          -S "$GITHUB_WORKSPACE/entservices-dtv"
+          -B build/entservices-dtv
           -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/install/usr"
           -DCMAKE_MODULE_PATH="$GITHUB_WORKSPACE/install/tools/cmake"
           -DCMAKE_CXX_FLAGS="
@@ -450,7 +451,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug
           -DDS_FOUND=ON
           -DHAS_FRONT_PANEL=ON
-          -DRDK_SERVICES_L1_TEST=ON
+          -DRDK_SERVICES_L1_TEST=${{ env.RDK_SERVICES_L1_TEST }}
           -DUSE_THUNDER_R4=ON
           -DHIDE_NON_EXTERNAL_SYMBOLS=OFF
           -DPLUGIN_SCREENCAPTURE=ON
@@ -460,9 +461,9 @@ jobs:
           -DPLUGIN_LINEARPLAYBACKCONTROL=ON
           -DPLUGIN_UNIFIEDCASMANAGEMENT=ON
           &&
-          cmake --build build/entservices-mediaanddrm -j8
+          cmake --build build/entservices-dtv -j8
           &&
-          cmake --install build/entservices-mediaanddrm
+          cmake --install build/entservices-dtv
 
       - name: Build entservices-testframework
         run: >
@@ -487,7 +488,7 @@ jobs:
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests/headers/rdk/iarmmgrs-hal
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests/headers/ccec/drivers
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests/headers/network
-          -I $GITHUB_WORKSPACE/entservices-mediaanddrm/helpers
+          -I $GITHUB_WORKSPACE/entservices-dtv/helpers
           -I $GITHUB_WORKSPACE/entservices-testframework/Tests
           -I $GITHUB_WORKSPACE/Thunder/Source
           -I $GITHUB_WORKSPACE/Thunder/Source/core
@@ -537,7 +538,7 @@ jobs:
           -DPLUGIN_SYSTEMAUDIOPLAYER=ON
           -DPLUGIN_PLAYERINFO=ON
           -DPLUGIN_LINEARPLAYBACKCONTROL=ON
-          -DRDK_SERVICES_L1_TEST=ON
+          -DRDK_SERVICES_L1_TEST=${{ env.RDK_SERVICES_L1_TEST }}
           -DUSE_THUNDER_R4=ON
           -DHIDE_NON_EXTERNAL_SYMBOLS=OFF
           -DPLUGIN_UNIFIEDCASMANAGEMENT=ON
@@ -632,6 +633,7 @@ jobs:
           ls -l /dev/disk/by-id/usb-JetFlash_Transcend_16GB_UEUIRCXT-0
 
       - name: Run unit tests without valgrind
+          if: ${{ env.RDK_SERVICES_L1_TEST == 'ON' }}
         run: >
           PATH=$GITHUB_WORKSPACE/install/usr/bin:${PATH}
           LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/usr/lib:$GITHUB_WORKSPACE/install/usr/lib/wpeframework/plugins:${LD_LIBRARY_PATH}
@@ -641,7 +643,7 @@ jobs:
           rm -rf $(pwd)/rdkL1TestResults.json
 
       - name: Run unit tests with valgrind
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && env.RDK_SERVICES_L1_TEST == 'ON' }}
         run: >
           PATH=$GITHUB_WORKSPACE/install/usr/bin:${PATH}
           LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install/usr/lib:$GITHUB_WORKSPACE/install/usr/lib/wpeframework/plugins:${LD_LIBRARY_PATH}
@@ -658,18 +660,18 @@ jobs:
           rm -rf $(pwd)/rdkL1TestResults.json
 
       - name: Generate coverage
-        if: ${{ matrix.coverage == 'with-coverage' && !env.ACT }}
+        if: ${{ matrix.coverage == 'with-coverage' && !env.ACT && env.RDK_SERVICES_L1_TEST == 'ON' }}
         run: >
           cp $GITHUB_WORKSPACE/entservices-testframework/Tests/L1Tests/.lcovrc_l1 ~/.lcovrc
           &&
           lcov -c
           -o coverage.info
-          -d build/entservices-mediaanddrm
+          -d build/entservices-dtv
           &&
           lcov
           -r coverage.info
           '/usr/include/*'
-          '*/build/entservices-mediaanddrm/_deps/*'
+          '*/build/entservices-dtv/_deps/*'
           '*/install/usr/include/*'
           '*/Tests/headers/*'
           '*/Tests/mocks/*'
@@ -679,14 +681,14 @@ jobs:
           &&
           genhtml
           -o coverage
-          -t "entservices-mediaanddrm coverage"
+          -t "entservices-dtv coverage"
           filtered_coverage.info
 
       - name: Upload artifacts
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && env.RDK_SERVICES_L1_TEST == 'ON' }}
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts-L1-mediaanddrm
+          name: artifacts-L1-dtv
           path: |
             coverage/
             valgrind_log
