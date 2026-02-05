@@ -66,18 +66,12 @@ add_library(${PLUGIN_IMPLEMENTATION} SHARED
     DTVImpl.cpp
     Module.cpp)
 
-target_include_directories(${PLUGIN_IMPLEMENTATION}
-    PRIVATE
-        ../helpers)
-
-if(DTVKIT_INCLUDE_DIR)
-    target_include_directories(${PLUGIN_IMPLEMENTATION}
-        PRIVATE
-            ${DTVKIT_INCLUDE_DIR}
-            ${DTVKIT_INCLUDE_DIR}/../dvb/inc
-            ${DTVKIT_INCLUDE_DIR}/../midware/stb/inc
-            ${DTVKIT_INCLUDE_DIR}/../platform/inc)
-endif()
+include_directories(
+   ../helpers
+   ${DTVKIT_INCLUDE_DIR}
+   ${DTVKIT_INCLUDE_DIR}/../dvb/inc
+   ${DTVKIT_INCLUDE_DIR}/../midware/stb/inc
+   ${DTVKIT_INCLUDE_DIR}/../platform/inc)
 
 set_target_properties(${PLUGIN_IMPLEMENTATION} PROPERTIES
         CXX_STANDARD 11
