@@ -99,16 +99,16 @@ cd $GITHUB_WORKSPACE
 cd entservices-testframework/Tests
 echo " Empty mocks creation to avoid compilation errors"
 echo "======================================================================================"
-mkdir headers
-mkdir -p headers/dvb/inc
-mkdir -p headers/midware/stb/inc
-mkdir -p headers/platform/inc
+mkdir -p /usr/include/dtvkit/inc
+mkdir -p /usr/include/dtvkit/dvb/inc
+mkdir -p /usr/include/dtvkit/midware/stb/inc
+mkdir -p /usr/include/dtvkit/platform/inc
 echo "dir created successfully"
 echo "======================================================================================"
 
 echo "======================================================================================"
 echo "empty headers creation"
-cd headers
+cd /usr/include/dtvkit/inc
 touch techtype.h
 echo "======================================================================================"
 
