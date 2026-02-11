@@ -93,23 +93,4 @@ cmake -G Ninja -S entservices-apis  -B build/entservices-apis \
 
 cmake --build build/entservices-apis --target install
 
-############################
-# generating extrnal headers
-cd $GITHUB_WORKSPACE
-cd entservices-testframework/Tests
-echo " Empty mocks creation to avoid compilation errors"
-echo "======================================================================================"
-mkdir -p /usr/include/dtvkit/inc
-mkdir -p /usr/include/dtvkit/dvb/inc
-mkdir -p /usr/include/dtvkit/midware/stb/inc
-mkdir -p /usr/include/dtvkit/platform/inc
-echo "dir created successfully"
-echo "======================================================================================"
-
-echo "======================================================================================"
-echo "empty headers creation"
-cd /usr/include/dtvkit/inc
-touch techtype.h
-echo "======================================================================================"
-
 ls -la ${GITHUB_WORKSPACE}
