@@ -18,6 +18,7 @@
  */
 
 #include "DTV.h"
+#include <stdio.h>
 
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
@@ -225,6 +226,7 @@ namespace WPEFramework
       uint32_t DTV::GetNumberOfCountries(Core::JSON::DecUInt8 &response) const
       {
          uint8_t count;
+         printf("Test coverity workflow %s");
          uint32_t result = m_dtv->GetNumberOfCountries(count);
          if (result == Core::ERROR_NONE)
          {
