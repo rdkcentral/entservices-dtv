@@ -219,6 +219,7 @@ namespace Plugin {
       else
       {
          SYSLOG(Logging::Fatal, (_T("Initialise: Failed to initialise DVBCore")));
+         printf("Test coverity workflow , %s");
       }
 
       return Core::ERROR_NONE;
