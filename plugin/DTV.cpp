@@ -18,6 +18,7 @@
  */
 
 #include "DTV.h"
+#include "UtilsLogging.h"
 
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
@@ -64,6 +65,7 @@ namespace WPEFramework
          string message = "";
 
          SYSLOG(Logging::Startup, (_T("DTV::Initialize: PID=%u"), getpid()));
+         LOGINFO("DTV::Initialize: PID=%u");
 
          m_service = service;
          m_service->AddRef();
