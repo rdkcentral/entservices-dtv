@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+
 #include "DTVImpl.h"
 
 extern "C"
@@ -177,6 +178,7 @@ namespace Plugin {
 
       return(dtv_instance);
    }
+
 
    uint32_t DTVImpl::Initialize(PluginHost::IShell* framework)
    {
