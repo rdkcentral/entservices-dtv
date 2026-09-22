@@ -62,7 +62,7 @@ cmake -G Ninja -S "$GITHUB_WORKSPACE" -B build/entservices-dtv \
 -Wall -Werror -Wno-error=format \
 -Wl,-wrap,system -Wl,-wrap,popen -Wl,-wrap,syslog \
 -DENABLE_TELEMETRY_LOGGING -DHAS_API_SYSTEM \
--DUSE_THUNDER_R4 -DTHUNDER_VERSION=4 -DTHUNDER_VERSION_MAJOR=4 -DTHUNDER_VERSION_MINOR=4" \
+-DTHUNDER_VERSION=4 -DTHUNDER_VERSION_MAJOR=4 -DTHUNDER_VERSION_MINOR=4" \
 
 # cmake --build build/entservices-dtv --target install
 echo "======================================================================================"
