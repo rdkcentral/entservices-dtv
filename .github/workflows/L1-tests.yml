@@ -11,11 +11,13 @@ on:
 env:
   BUILD_TYPE: Debug
   REPO_NAME: "dtv"
-  THUNDER_REF: "R4.4.1"
+  THUNDER_TOOLS_COMMIT_SHA: "d5dd83c7c19c49c7f25c558c126500bd2d64f7a4"
+  THUNDER_COMMIT_SHA: "2c0fcc5529e7da734be558ca6efa05d934dcce31"
   INTERFACES_REF: "develop"
   AUTOMATICS_UNAME: ${{ secrets.AUTOMATICS_UNAME}}
   AUTOMATICS_PASSCODE: ${{ secrets. AUTOMATICS_PASSCODE}}
   RDK_SERVICES_L1_TEST: "OFF"
+  ENABLE_CACHE: "false"
 
 jobs:
   L1-tests:
@@ -39,7 +41,7 @@ jobs:
         # https://github.com/actions/cache
         # https://docs.github.com/en/rest/actions/cache
         # Modify the key if changing the list.
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && env.ENABLE_CACHE == 'true' }}
         id: cache
         uses: actions/cache@v3
         with:
@@ -62,7 +64,7 @@ jobs:
             !install/usr/lib/pkgconfig/gtest.pc
             !install/usr/lib/pkgconfig/gtest_main.pc
             !install/usr/lib/wpeframework/plugins
-          key: ${{ runner.os }}-${{ env.REPO_NAME }}-${{ env.THUNDER_REF }}-${{ env.INTERFACES_REF }}-4
+          key: ${{ runner.os }}-${{ env.REPO_NAME }}-${{ env.THUNDER_COMMIT_SHA }}-${{ env.INTERFACES_REF }}-5
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -102,11 +104,12 @@ jobs:
             sudo ninja -C build install
 
       - name: Checkout Thunder
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
         with:
           repository: rdkcentral/Thunder
           path: Thunder
-          ref: ${{env.THUNDER_REF}}
+          ref: ${{env.THUNDER_COMMIT_SHA}}
 
       - name: Checkout ThunderTools
         if: steps.cache.outputs.cache-hit != 'true'
@@ -114,7 +117,7 @@ jobs:
         with:
           repository: rdkcentral/ThunderTools
           path: ThunderTools
-          ref: R4.4.3
+          ref: ${{env.THUNDER_TOOLS_COMMIT_SHA}}
 
       - name: Checkout entservices-testframework
         uses: actions/checkout@v3
@@ -144,13 +147,6 @@ jobs:
           path: googletest
           ref: v1.15.0
 
-      - name: Apply patches ThunderTools
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |  
-          cd $GITHUB_WORKSPACE/ThunderTools
-          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/00010-R4.4-Add-support-for-project-dir.patch
-          cd -
-
       - name: Build ThunderTools
         if: steps.cache.outputs.cache-hit != 'true'
         run: >
@@ -165,16 +161,6 @@ jobs:
           cmake --build build/ThunderTools -j8
           &&
           cmake --install build/ThunderTools
-
-      - name: Apply patches Thunder
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cd $GITHUB_WORKSPACE/Thunder
-          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/Use_Legact_Alt_Based_On_ThunderTools_R4.4.3.patch
-          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/error_code_R4_4.patch
-          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/1004-Add-support-for-project-dir.patch
-          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/RDKEMW-733-Add-ENTOS-IDS.patch
-          cd -
 
       - name: Build Thunder
         if: steps.cache.outputs.cache-hit != 'true'
@@ -201,7 +187,13 @@ jobs:
           repository: rdkcentral/entservices-apis
           path: entservices-apis
           ref: ${{env.INTERFACES_REF}}
-          run: rm -rf $GITHUB_WORKSPACE/entservices-apis/jsonrpc/DTV.json
+      - name: Remove unused DTV API definition
+        run: rm -f "$GITHUB_WORKSPACE/entservices-apis/jsonrpc/DTV.json"
+      - name: Apply patches entservices-apis
+        run: |
+          cd $GITHUB_WORKSPACE/entservices-apis
+          patch -p1 < $GITHUB_WORKSPACE/entservices-testframework/patches/RDKEMW-1007.patch
+          cd -
           
       - name: Build entservices-apis
         run: >
