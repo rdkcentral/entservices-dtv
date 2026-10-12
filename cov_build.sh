@@ -47,7 +47,6 @@ cmake -G Ninja -S "$GITHUB_WORKSPACE" -B build/entservices-dtv \
 -I ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks \
 -I ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks/thunder \
 -I /usr/include/libdrm \
--include ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks/devicesettings.h \
 -include ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks/Rfc.h \
 -include ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks/RBus.h \
 -include ${GITHUB_WORKSPACE}/entservices-testframework/Tests/mocks/Telemetry.h \
